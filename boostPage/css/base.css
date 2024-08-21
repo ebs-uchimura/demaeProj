@@ -1,0 +1,167 @@
+/**
+/* base.css
+**/
+
+/* tag */
+ul {
+  margin-block-start: 0;
+  margin-block-end: 0;
+  list-style: none;
+}
+
+dd {
+  margin-inline-start: 0;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+footer {
+  padding-bottom: 10px;
+}
+
+/* id */
+#headwrapper{
+  padding: 0 10px;
+}
+
+#resulthead {
+  font-weight: bold;
+  background-color: #FFFACD;
+}
+
+#resultmap  {
+  margin-top: 30px;
+}
+
+#resultmap tr {
+  height: 30px;
+}
+
+#resultmap td, th {
+  text-align: left;
+  border: solid #000 1px;
+}
+
+#resultmap .pc {
+  width: 50px;
+}
+
+#resultmap .pc:nth-child(1) {
+  width: 120px;
+}
+
+#resultmap .sp {
+  width: 30vw;
+}
+
+#resultmap .sp:nth-child(1) {
+  width: 40vw;
+}
+
+/* class */
+.flex-box {
+  display: flex;  
+}
+
+/* pc only */
+@media screen and (min-width: 769px) {
+  /* tag */
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  p {
+    margin: 10px 0;
+  }
+
+  ul {
+    padding-inline-start: 10px;
+  }
+
+  dt {
+    margin-top: 15px;
+  }
+
+  table th {
+    font-size: 1.0rem;
+  }
+
+  table td {
+    font-size: 1.1rem;
+  }
+
+  select {
+    width: 200px;
+  }
+
+  /* id */
+  #datepicker {
+    width: 200px;
+  }
+
+  /* class */
+  .flex-box {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .flex-item {
+    margin: 2px 5px;
+  }
+}
+
+/* smartphone only */
+@media screen and (max-width: 768px) {
+  /* tag */
+  h1 {
+    font-size: 1.2rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 1rem, 0;
+  }
+  
+  ul {
+    padding-inline-start: 1rem;
+  }
+  
+  dt {
+    margin-top: 0.1rem;
+  }
+
+  table {
+    font-size: 1rem;
+  }
+
+  select {
+    width: 40vw;
+  }
+
+  /* id */
+  #datepicker {
+    width: 40vw;
+  }
+
+  /* class */
+  .flex-box {
+    display: flex;
+    align-content: space-between; 
+    flex-wrap: wrap; 
+  }
+
+  .flex-item {
+    width: 40vw;
+    margin: 1vh 5vw;
+    text-align: center;
+  }
+}

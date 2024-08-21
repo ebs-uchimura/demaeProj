@@ -1,0 +1,45 @@
+{
+  "name": "boxpathGetter",
+  "version": "1.1.4",
+  "description": "getting box absolute path from urls.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:mac": "electron-builder --mac --x64",
+    "build:win": "electron-builder --win --x64"
+  },
+  "author": "Koichi Uchimura",
+  "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^4.1.1",
+    "csv-parse": "^4.16.0",
+    "date-utils": "^1.2.21",
+    "electron-log": "^4.4.1",
+    "electron-store": "^8.0.0",
+    "fs": "^0.0.1-security",
+    "iconv-lite": "^0.6.3",
+    "puppeteer-core": "^10.2.0"
+  },
+  "devDependencies": {
+    "electron": "^13.2.1",
+    "electron-builder": "^22.11.7"
+  },
+  "build": {
+    "appId": "jp.scrape.app1",
+    "asar": true,
+    "files": [
+      "!**/node_modules/*"
+    ],
+    "win": {
+      "target": {
+        "target": "dir",
+        "arch": [
+          "x64"
+        ]
+      }
+    },
+    "mac": {
+      "target": "dmg"
+    }
+  }
+}
