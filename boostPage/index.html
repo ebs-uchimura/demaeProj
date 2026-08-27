@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>boostPage</title>
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8.2.3/dist/polyfill.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
+    <script src="./js/index.js"></script>
+  </head>
+  <body>
+    <header>
+      <div id="headwrapper">
+        <h1>boostPage</h1>
+      </div>
+    </header>
+    <main>
+      <section>
+        <h2>▼&thinsp;boostList</h2>
+        <div class="flex-box">
+          <div class="flex-item">
+            <span>日付</span><br>
+            <input type="text" name="dt[]" id="datepicker" autocomplete="off">
+          </div>
+          <div class="flex-item">
+            <span>エリア</span><br>
+            <select id="area">
+              <option value="" selected>エリア</option>
+              <option value="hokkaido">北海道</option>
+              <option value="tohoku">東北</option>
+              <option value="kanto">関東</option>
+              <option value="chubu">中部</option>
+              <option value="kinki">近畿</option>
+              <option value="chushikoku">中国・四国</option>
+              <option value="kyushu">九州</option>
+            </select>
+          </div>
+          <div class="flex-item">
+            <span>都道府県</span><br>
+            <select id="prefecture">
+              <option value="" selected>都道府県</option>
+              <option value="北海道" data-val="hokkaido">北海道</option>
+              <option value="青森県" data-val="tohoku">青森県</option>
+              <option value="岩手県" data-val="tohoku">岩手県</option>
+              <option value="宮城県" data-val="tohoku">宮城県</option>
+              <option value="秋田県" data-val="tohoku">秋田県</option>
+              <option value="山形県" data-val="tohoku">山形県</option>
+              <option value="福島県" data-val="tohoku">福島県</option>
+              <option value="茨城県" data-val="kanto">茨城県</option>
+              <option value="栃木県" data-val="kanto">栃木県</option>
+              <option value="群馬県" data-val="kanto">群馬県</option>
+              <option value="埼玉県" data-val="kanto">埼玉県</option>
+              <option value="千葉県" data-val="kanto">千葉県</option>
+              <option value="東京都" data-val="kanto">東京都</option>
+              <option value="神奈川県" data-val="kanto">神奈川県</option>
+              <option value="新潟県" data-val="chubu">新潟県</option>
+              <option value="富山県" data-val="chubu">富山県</option>
+              <option value="石川県" data-val="chubu">石川県</option>
+              <option value="福井県" data-val="chubu">福井県</option>
+              <option value="山梨県" data-val="chubu">山梨県</option>
+              <option value="長野県" data-val="chubu">長野県</option>
+              <option value="岐阜県" data-val="chubu">岐阜県</option>
+              <option value="静岡県" data-val="chubu">静岡県</option>
+              <option value="愛知県" data-val="chubu">愛知県</option>
+              <option value="三重県" data-val="kinki">三重県</option>
+              <option value="滋賀県" data-val="kinki">滋賀県</option>
+              <option value="京都府" data-val="kinki">京都府</option>
+              <option value="大阪府" data-val="kinki">大阪府</option>
+              <option value="兵庫県" data-val="kinki">兵庫県</option>
+              <option value="奈良県" data-val="kinki">奈良県</option>
+              <option value="和歌山県" data-val="kinki">和歌山県</option>
+              <option value="鳥取県" data-val="chushikoku">鳥取県</option>
+              <option value="島根県" data-val="chushikoku">島根県</option>
+              <option value="岡山県" data-val="chushikoku">岡山県</option>
+              <option value="広島県" data-val="chushikoku">広島県</option>
+              <option value="山口県" data-val="chushikoku">山口県</option>
+              <option value="徳島県" data-val="chushikoku">徳島県</option>
+              <option value="香川県" data-val="chushikoku">香川県</option>
+              <option value="愛媛県" data-val="chushikoku">愛媛県</option>
+              <option value="高知県" data-val="chushikoku">高知県</option>
+              <option value="福岡県" data-val="kyushu">福岡県</option>
+              <option value="佐賀県" data-val="kyushu">佐賀県</option>
+              <option value="長崎県" data-val="kyushu">長崎県</option>
+              <option value="熊本県" data-val="kyushu">熊本県</option>
+              <option value="大分県" data-val="kyushu">大分県</option>
+              <option value="宮崎県" data-val="kyushu">宮崎県</option>
+              <option value="鹿児島県" data-val="kyushu">鹿児島県</option>
+              <option value="沖縄県" data-val="kyushu">沖縄県</option>
+            </select>
+          </div>
+          <div class="flex-item">
+            <span>市区町村</span><br>
+            <select id="city">
+              <option value="null" data-val="null">市区町村</option>
+            </select>
+          </div>
+        </div>
+      </section>
+      <section>
+        <table id="resultmap">
+          <thead id="resulthead"></thead>
+          <tbody id="resultbody"></tbody>
+        </table>
+      </section>
+    </main>
+    <footer>
+      <small>© 2022 ebs-Uchimura</small>
+    </footer>
+  </body>
+</html>

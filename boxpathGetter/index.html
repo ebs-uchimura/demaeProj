@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Boxパスゲッター</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</head>
+<body>
+    <div style="display:flex;justify-content: space-between;">
+        <h2><span id="header">Boxパスゲッター</span></h2>
+        <h4><span style="margin-right:10px;"><input type="checkbox" id="language" checked>日本語</span></h4>
+    </div>
+    <div>
+        <button value="Copy Data" onclick="copyData()"><span id="cpclip">クリップボードへコピー</span></button>
+    </div><br>
+    <div><span id="secretwd">秘密の言葉</span>&emsp;
+        <input type="text" id="secret" size="8" maxlength="10">&emsp;
+        <span id="secret-ok"></span>
+    </div>
+    <div>
+        <button value="Send Secret" onclick="sendsecret()"><span id="sendsecret">秘密の言葉を送信</span></button>
+    </div><br>
+    <div><span id="boxid">BoxログインID</span>&emsp;
+        <input type="text" id="name" size="20" maxlength="30">
+    </div>
+    <div><span id="boxpass">Boxログインパスワード</span>&emsp;
+        <input type="password" id="pass" size="30" maxlength="50">
+    </div>
+    <div>
+        <button value="Start Listing" onclick="startListing()"><span id="listing">リスト化開始</span></button>
+    </div><br>
+    <div>
+        <button value="Clear Data" onclick="clearData()"><span id="dtclear">データクリア</span></button>
+    </div>
+    <h3><span id="boxpslist">Boxパスリスト</span></h3>
+    <div id="area"></div>
+    <footer id="error" style="position:fixed;bottom:0;background-color: #fff;"></footer>
+    <script charset="UTF-8">
+    // constants
+    // japanese
+    const COPY_TO_CLOPBOARD_JA = 'クリップボードへコピーしました。';
+    const DATA_CLEARED_JA = 'データをクリアしました。';
+    const NO_DATA_JA = 'データがありません。';
+    const ENTER_SECRET_JA = '秘密の言葉を送信してください。';
+    const SECRET_EXISTS_JA = '既に送信されています。';
+    const ALLFILE_STR_JA = 'すべてのファイル';
+    const APPTITLE_JA = 'Boxパスゲッター';
+    const CLIPTOCLIPBOARD_JA = 'クリップボードへコピー';
+    const SECRETWORD_JA = '秘密の言葉';
+    const SENDSECRETWORD_JA = '秘密の言葉を送信';
+    const BOXLOGINID_JA = 'BoxログインID';
+    const BOXLOGINPASS_JA = 'Boxログインパスワード';
+    const STARTLISTING_JA = 'リスト化開始';
+    const DATACLEAR_JA = 'データクリア';
+    const BOXPATHLIST_JA = 'Boxパスリスト';
+    // english
+    const COPY_TO_CLOPBOARD = 'Copied to Clipboard.';
+    const DATA_CLEARED = 'Data cleared.';
+    const NO_DATA = 'No data exists.';
+    const ENTER_SECRET = 'Please send secret word.';
+    const SECRET_EXISTS = 'secret word already sent.';
+    const ALLFILE_STR = 'All Files';
+    const APPTITLE = 'BoxPathGetter';
+    const CLIPTOCLIPBOARD_ = 'Copy to ClipBoard';
+    const SECRETWORD = 'SecretWord';
+    const SENDSECRETWORD = 'Send SecretWord';
+    const BOXLOGINID = 'BoxLoginID';
+    const BOXLOGINPASS = 'BoxLoginPass';
+    const STARTLISTING = 'Start Listing';
+    const DATACLEAR = 'Clear Data';
+    const BOXPATHLIST = 'Box path list';
+
+    // variables
+    let copyToClipboard;
+    let dataCleared;
+    let secretWd;
+    let noData;
+    let enterSecret;
+    let alreadySecret;
+    let appVersion;
+
+    // result data
+    let result;
+    // login id
+    let loginId;
+    // login pass
+    let loginPass;
+    // counter
+    let successCounter;
+    // target string
+    let targetStr;
+    // ready flg
+    let readyFlg = false;
+    // complete flg
+    let secretFlg = false;
+    // japanese flg
+    let japaneseFlg = false;
+    // target flg
+    let targetFlg = false;
+
+    // doms
+    const idDom = document.getElementById("name");
+    const passDom = document.getElementById("pass");
+    const areaDom = document.getElementById("area");
+    const secretDom = document.getElementById("secret");
+    const errorDom = document.getElementById("error");
+    const secretOkDom = document.getElementById("secret-ok");
+    const languageDom = document.getElementById("language");
+
+    // changable doms
+    const titleDom = document.getElementById("title");
+    const headerDom = document.getElementById("header");
+    const cpclipDom = document.getElementById("cpclip");
+    const langwrapDom = document.getElementById("langwrap");
+    const secretwdDom = document.getElementById("secretwd");
+    const sendsecretDom = document.getElementById("sendsecret");
+    const boxidDom = document.getElementById("boxid");
+    const boxpassDom = document.getElementById("boxpass");
+    const listingDom = document.getElementById("listing");
+    const dtclearDom = document.getElementById("dtclear");
+    const boxpslistDom = document.getElementById("boxpslist");
+
+    // be ready
+    window.api.on("ready", arg => {
+        // variables
+        secretWd = arg.secret ?? '';
+        appVersion = arg.version ?? '0.0.0';
+        // send raady
+        window.api.send("go", languageDom.checked);
+        // change dom
+        secretDom.value = secretWd;
+    });
+
+    // get authentication
+    window.api.on("auth", arg => {
+        try {
+            // recieved data
+            const target = JSON.parse(JSON.stringify(arg));
+            const targetId = target.id ?? '';
+            const targetPass = target.pass ?? '';
+            // change language
+            changeLanguage(languageDom.checked);
+            // data exists
+            if(targetId != '') {
+                // decrypt password
+                const tmpPass = CryptoJS.AES.decrypt(targetPass, secretWd).toString(CryptoJS.enc.Utf8);
+                // input data
+                loginId = targetId;
+                loginPass = tmpPass;
+            // no data
+            } else {
+                // input data
+                loginId = '';
+                loginPass = '';
+            }
+            // input dom
+            idDom.value = loginId;
+            passDom.value = loginPass;
+        } catch(e) {
+            // send error
+            window.api.send("error", e);
+        }
+    });
+
+    // watch checkbox
+    languageDom.addEventListener('change', e => {
+        // change language
+        changeLanguage(languageDom.checked);
+        if(languageDom.checked) {
+            document.documentElement.setAttribute("lang", 'ja');
+        } else {
+            document.documentElement.setAttribute("lang", 'en');
+        }
+    });
+
+    // secret ok
+    window.api.on("secret-reply", arg => {
+        try {
+            // display 'ok'
+            secretOkDom.innerHTML = 'ok';
+            // flg on
+            secretFlg = true;
+        } catch(e) {
+            // send error
+            window.api.send("error", e);
+        }
+    });
+
+    // ignite ipcMain
+    window.api.on("openfile", arg => {
+        // variables
+        let resObj = {};
+
+        // reset counter
+        successCounter = 0;
+        try {
+            // recieved data
+            const target = JSON.parse(JSON.stringify(arg));
+            // set variables
+            targetStr = target.str ?? '';
+            targetFlg = target.flg;
+            // if blank
+            if(targetStr != '') {
+                // no data
+                if(target.nodata) {
+                    // insert into dom
+                    areaDom.insertAdjacentHTML('beforeend', '<div>' + targetStr + '</div>');
+                    resObj = {
+                        "result": targetStr,
+                        "flg": targetFlg,
+                    }
+                } else {
+                    // set target object
+                    const obj = JSON.parse(targetStr.replace('Box.postStreamData = ', '').replace(';', ''));
+                    // extract path name from object
+                    Object.keys(obj).forEach(key => {
+                        if(key == Object.getOwnPropertyNames(obj)) {
+                            // combine paths
+                            result = obj[key].folder.path.map(i => i.name).join('\\');
+                            result = result.replace(ALLFILE_STR, '');
+                            result = result.replace(ALLFILE_STR_JA, '');
+                            result = 'Box' + result;
+                            // insert into dom
+                            areaDom.insertAdjacentHTML('beforeend', '<div>' + result + '</div>');
+                            // result
+                            resObj = {
+                                "result": result,
+                                "flg": targetFlg,
+                            }
+                        }
+                    });
+                }
+                // count up
+                successCounter++;
+            } else {
+                // insert into dom
+                areaDom.insertAdjacentHTML('beforeend', '<div> </div><br>');
+                // result
+                resObj = {
+                    "result": " ",
+                    "flg": targetFlg,
+                }
+            }
+            // send result
+            window.api.send("path", resObj);
+        } catch(e) {
+            // send error
+            window.api.send("error", e);
+        }
+    });
+
+    // secret
+    const sendsecret = () => {
+        try {
+            // if secret
+            if(secretFlg) {
+                // popup
+                window.api.send("dialog", alreadySecret);
+            }
+            // send secret word
+            if(secretDom.value == '') {
+                // error
+                window.api.send("dialog", noData);
+                // destroy dom
+                secretDom.disabled = false;
+            } else {
+                // send secret
+                window.api.send("secret", escapeHTML(secretDom.value));
+            }
+        } catch(e) {
+            // send error
+            window.api.send("error", e);
+        }
+    }
+
+    // copy
+    const copyData = () => {
+        try {
+            // select dom
+            selectElement(areaDom);
+            // copy to clipboard
+            if(areaDom.innerHTML == '') {
+                // error
+                window.api.send("dialog", noData);
+            } else {
+                // copy element
+                document.execCommand("copy");
+                // popup
+                window.api.send("dialog", copyToClipboard);
+            }
+        } catch(e) {
+            // send error
+            window.api.send("error", e);
+        }
+    }
+
+    // clear
+    const clearData = () => {
+        try {
+            // secret dom
+            if(areaDom.innerHTML == '') {
+                // error
+                window.api.send("dialog", noData);
+            } else {
+                // clear data
+                areaDom.innerHTML = '';
+                // send clear signal
+                window.api.send("clear", '');
+                // popup
+                window.api.send("dialog", dataCleared);
+            }
+        } catch(e) {
+            // send error
+            window.api.send("error", e);
+        }
+    }
+
+    // start
+    const startListing = () => {
+        try {
+            // passphrase for encrypt
+            const passPhrase = escapeHTML(secretDom.value);
+            // utf-8 normalize
+            const utf8_plain = CryptoJS.enc.Utf8.parse(escapeHTML(passDom.value));
+            // password(encrypted)
+            const encryptedPass = CryptoJS.AES.encrypt(utf8_plain, passPhrase).toString();
+            // object for sending
+            const obj = {
+                "id": escapeHTML(idDom.value),
+                "pass": encryptedPass,
+            }
+            // clear error
+            errorDom.innerHTML = '';
+            if(!secretFlg) {
+                // error
+                throw new Error(enterSecret);
+            }
+            if(idDom.value == '' || passDom.value == '') {
+                // error
+                throw new Error(noData);
+            }
+            // send login data
+            window.api.send("login", obj);
+        } catch(e) {
+            // error
+            window.api.send("error", e);
+        }
+    }
+
+    // select element
+    const selectElement = elem => {
+        // preparation
+        const range = document.createRange();
+        // configure range
+        range.selectNode(elem);
+        // get user selection
+        const selection = document.getSelection();
+        // release selection
+        selection.removeAllRanges();
+        // select target element
+        selection.addRange(range);
+    }
+
+    // change language
+    const changeLanguage = flg => {
+        // japanese
+        if(flg) {
+            japaneseFlg = true;
+            document.title = APPTITLE_JA;
+            headerDom.innerHTML = `${APPTITLE_JA} ver${appVersion}`;
+            cpclipDom.innerHTML = CLIPTOCLIPBOARD_JA;
+            secretwdDom.innerHTML = SECRETWORD_JA;
+            sendsecretDom.innerHTML = SENDSECRETWORD_JA;
+            boxidDom.innerHTML = BOXLOGINID_JA;
+            boxpassDom.innerHTML = BOXLOGINPASS_JA;
+            listingDom.innerHTML = STARTLISTING_JA;
+            dtclearDom.innerHTML = DATACLEAR_JA;
+            boxpslistDom.innerHTML = BOXPATHLIST_JA;
+            copyToClipboard = COPY_TO_CLOPBOARD_JA;
+            dataCleared = DATA_CLEARED_JA;
+            noData = NO_DATA_JA;
+            enterSecret = ENTER_SECRET_JA;
+            alreadySecret = SECRET_EXISTS_JA;
+            document.documentElement.setAttribute("lang", 'ja');
+        // english
+        } else {
+            japaneseFlg = false;
+            document.title = APPTITLE;
+            headerDom.innerHTML = `${APPTITLE} ver${appVersion}`;
+            cpclipDom.innerHTML = COPY_TO_CLOPBOARD;
+            secretwdDom.innerHTML = SENDSECRETWORD;
+            sendsecretDom.innerHTML = SENDSECRETWORD;
+            boxidDom.innerHTML = BOXLOGINID;
+            boxpassDom.innerHTML = BOXLOGINPASS;
+            listingDom.innerHTML = STARTLISTING;
+            dtclearDom.innerHTML = DATACLEAR;
+            boxpslistDom.innerHTML = BOXPATHLIST;
+            copyToClipboard = COPY_TO_CLOPBOARD;
+            dataCleared = DATA_CLEARED;
+            noData = NO_DATA;
+            enterSecret = ENTER_SECRET;
+            alreadySecret = SECRET_EXISTS;
+            document.documentElement.setAttribute("lang", 'en');
+        }
+    }
+
+    const escapeHTML = string => {
+        return string.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27');
+    }
+</script>
+</body>
+</html>
